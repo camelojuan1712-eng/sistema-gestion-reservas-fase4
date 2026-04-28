@@ -4,8 +4,9 @@
 **Fase 4 - Componente Práctico Simulado**
 
 ## 👥 Integrantes
-- [Juan David Camelo] (https://github.com/camelojuan1712-eng)
-- (Agregar compañeros cuando se unan)
+- Juan Camelo (https://github.com/camelojuan1712-eng)
+- Paula
+- Cristhian Cano
 
 ## 🚀 Cómo ejecutar
 1. Clonar el repositorio.
