@@ -128,10 +128,14 @@ class Servicio(ABC):
         Valida que el precio_base sea positivo. Si no, lanza ErrorValidacion.
         Inicializa los atributos protegidos (prefijo _) que heredarán las hijas.
         """
+ feature/cliente-reserva
+
+ main
         # Validación: ningún servicio puede costar 0 o negativo
         if precio_base <= 0:
             raise ErrorValidacion(f"❌ El precio base '{precio_base}' debe ser un valor positivo.")
 
+ feature/cliente-reserva
         self._nombre = nombre          # Nombre del servicio (protegido)
         self._precio_base = precio_base  # Precio por hora base (protegido)
         self._disponible = True        # Por defecto, el servicio inicia disponible
@@ -139,11 +143,21 @@ class Servicio(ABC):
         # Registro en log de la creación (usa el método describir() polimórfico)
         logging.info(f"Servicio creado: {self.describir()} - Precio base: ${precio_base:.2f}")
 
+        self._nombre = nombre
+        self._precio_base = precio_base
+        self._disponible = True
+
+        # 🔴 CAMBIO IMPORTANTE:
+        # No usar describir() aquí porque las clases hijas aún no están listas
+        logging.info(f"Servicio creado: {nombre} - Precio base: ${precio_base:.2f}")
+ main
+
     # -----------------------------------------------------------------------
     #  MÉTODOS ABSTRACTOS (deben ser implementados por las hijas)
     # -----------------------------------------------------------------------
     @abstractmethod
     def calcular_costo(self, horas: int) -> float:
+ feature/cliente-reserva
         """
         Calcula el costo del servicio según las horas.
         Este método es abstracto: cada subclase definirá su propia fórmula.
@@ -151,6 +165,7 @@ class Servicio(ABC):
         Las subclases deben llamar a super().calcular_costo(horas) para
         reutilizar esta validación.
         """
+ main
         if horas <= 0:
             raise ErrorValidacion(
                 f"❌ La cantidad de horas '{horas}' no es válida. Debe ser un número positivo."
@@ -158,16 +173,20 @@ class Servicio(ABC):
 
     @abstractmethod
     def describir(self) -> str:
+ feature/cliente-reserva
         """
         Retorna una descripción detallada del servicio.
         Cada clase hija debe implementar este método con sus características.
         """
+
+ main
         pass
 
     # -----------------------------------------------------------------------
     #  MÉTODOS CONCRETOS (ya implementados, las hijas los heredan)
     # -----------------------------------------------------------------------
     def esta_disponible(self) -> bool:
+ feature/cliente-reserva
         """Consulta si el servicio está disponible para reservar."""
         return self._disponible
 
@@ -192,10 +211,25 @@ class Servicio(ABC):
     #    servicio.calcular_costo_con_impuestos(5)
     #    servicio.calcular_costo_con_impuestos(5, 0.19)
     #    servicio.calcular_costo_con_impuestos(5, 0.19, 0.10)
+        return self._disponible
+
+    def set_disponible(self, estado: bool):
+        self._disponible = estado
+
+    def get_nombre(self) -> str:
+        return self._nombre
+
+    def get_precio_base(self) -> float:
+        return self._precio_base
+
+    # -----------------------------------------------------------------------
+    #  SOBRECARGA SIMULADA
+ main
     # -----------------------------------------------------------------------
     def calcular_costo_con_impuestos(
         self, horas: int, impuesto: float = 0.0, descuento: float = 0.0
     ) -> float:
+ feature/cliente-reserva
         """
         Calcula el costo total aplicando impuesto y descuento opcionales.
         Incluye validaciones de rango y encadenamiento de excepciones.
@@ -235,6 +269,28 @@ class Servicio(ABC):
             f"[{self.__class__.__name__}] {self._nombre} | "
             f"Precio base: ${self._precio_base:,.0f}/hora | {estado}"
         )
+
+
+        if not (0.0 <= impuesto <= 1.0):
+            raise ErrorValidacion("❌ Impuesto inválido.")
+
+        if not (0.0 <= descuento <= 1.0):
+            raise ErrorValidacion("❌ Descuento inválido.")
+
+        try:
+            costo_base = self.calcular_costo(horas)
+        except ErrorValidacion as e:
+            raise ErrorValidacion(f"Error en cálculo: {e}") from e
+
+        subtotal = costo_base * (1 + impuesto)
+        total = subtotal * (1 - descuento)
+
+        return round(total, 2)
+
+    def __str__(self) -> str:
+        estado = "Disponible" if self._disponible else "No disponible"
+        return f"{self._nombre} | ${self._precio_base:,.0f}/hora | {estado}"
+ main
 
 
 # ===========================================================================
