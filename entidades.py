@@ -128,10 +128,20 @@ class Servicio(ABC):
         Valida que el precio_base sea positivo. Si no, lanza ErrorValidacion.
         Inicializa los atributos protegidos (prefijo _) que heredarán las hijas.
         """
+ feature/cliente-reserva
 
+ main
         # Validación: ningún servicio puede costar 0 o negativo
         if precio_base <= 0:
             raise ErrorValidacion(f"❌ El precio base '{precio_base}' debe ser un valor positivo.")
+
+ feature/cliente-reserva
+        self._nombre = nombre          # Nombre del servicio (protegido)
+        self._precio_base = precio_base  # Precio por hora base (protegido)
+        self._disponible = True        # Por defecto, el servicio inicia disponible
+
+        # Registro en log de la creación (usa el método describir() polimórfico)
+        logging.info(f"Servicio creado: {self.describir()} - Precio base: ${precio_base:.2f}")
 
         self._nombre = nombre
         self._precio_base = precio_base
@@ -140,12 +150,22 @@ class Servicio(ABC):
         # 🔴 CAMBIO IMPORTANTE:
         # No usar describir() aquí porque las clases hijas aún no están listas
         logging.info(f"Servicio creado: {nombre} - Precio base: ${precio_base:.2f}")
+ main
 
     # -----------------------------------------------------------------------
     #  MÉTODOS ABSTRACTOS (deben ser implementados por las hijas)
     # -----------------------------------------------------------------------
     @abstractmethod
     def calcular_costo(self, horas: int) -> float:
+ feature/cliente-reserva
+        """
+        Calcula el costo del servicio según las horas.
+        Este método es abstracto: cada subclase definirá su propia fórmula.
+        Aquí solo hago una validación común: horas debe ser > 0.
+        Las subclases deben llamar a super().calcular_costo(horas) para
+        reutilizar esta validación.
+        """
+ main
         if horas <= 0:
             raise ErrorValidacion(
                 f"❌ La cantidad de horas '{horas}' no es válida. Debe ser un número positivo."
@@ -153,12 +173,44 @@ class Servicio(ABC):
 
     @abstractmethod
     def describir(self) -> str:
+ feature/cliente-reserva
+        """
+        Retorna una descripción detallada del servicio.
+        Cada clase hija debe implementar este método con sus características.
+        """
+
+ main
         pass
 
     # -----------------------------------------------------------------------
     #  MÉTODOS CONCRETOS (ya implementados, las hijas los heredan)
     # -----------------------------------------------------------------------
     def esta_disponible(self) -> bool:
+ feature/cliente-reserva
+        """Consulta si el servicio está disponible para reservar."""
+        return self._disponible
+
+    def set_disponible(self, estado: bool):
+        """Cambia el estado de disponibilidad del servicio."""
+        self._disponible = estado
+
+    def get_nombre(self) -> str:
+        """Retorna el nombre del servicio (getter público)."""
+        return self._nombre
+
+    def get_precio_base(self) -> float:
+        """Retorna el precio base por hora (getter público)."""
+        return self._precio_base
+
+    # -----------------------------------------------------------------------
+    #  SOBRECARGA SIMULADA: método con parámetros opcionales
+    # -----------------------------------------------------------------------
+    #  Python no permite múltiples métodos con el mismo nombre, pero podemos
+    #  simular sobrecarga usando parámetros con valores por defecto.
+    #  Este método puede llamarse de tres formas:
+    #    servicio.calcular_costo_con_impuestos(5)
+    #    servicio.calcular_costo_con_impuestos(5, 0.19)
+    #    servicio.calcular_costo_con_impuestos(5, 0.19, 0.10)
         return self._disponible
 
     def set_disponible(self, estado: bool):
@@ -172,10 +224,52 @@ class Servicio(ABC):
 
     # -----------------------------------------------------------------------
     #  SOBRECARGA SIMULADA
+ main
     # -----------------------------------------------------------------------
     def calcular_costo_con_impuestos(
         self, horas: int, impuesto: float = 0.0, descuento: float = 0.0
     ) -> float:
+ feature/cliente-reserva
+        """
+        Calcula el costo total aplicando impuesto y descuento opcionales.
+        Incluye validaciones de rango y encadenamiento de excepciones.
+        """
+        # Validar que impuesto esté entre 0 y 1 (0% a 100%)
+        if not (0.0 <= impuesto <= 1.0):
+            raise ErrorValidacion(
+                f"❌ El impuesto '{impuesto}' debe estar entre 0.0 y 1.0."
+            )
+        # Validar que descuento esté entre 0 y 1
+        if not (0.0 <= descuento <= 1.0):
+            raise ErrorValidacion(
+                f"❌ El descuento '{descuento}' debe estar entre 0.0 y 1.0."
+            )
+
+        # Intentar obtener el costo base usando el método abstracto (polimorfismo)
+        try:
+            costo_base = self.calcular_costo(horas)
+        except ErrorValidacion as e:
+            # Encadenamiento de excepciones: 'from e' conserva la causa original
+            raise ErrorValidacion(
+                f"No se pudo calcular el costo con impuestos para '{self._nombre}': {e}"
+            ) from e
+
+        # Aplicar impuesto (aumenta el costo)
+        subtotal = costo_base * (1 + impuesto)
+        # Aplicar descuento (reduce el costo)
+        total = subtotal * (1 - descuento)
+
+        # Redondear a 2 decimales para mostrar pesos
+        return round(total, 2)
+
+    def __str__(self) -> str:
+        """Representación legible del servicio."""
+        estado = "Disponible" if self._disponible else "No disponible"
+        return (
+            f"[{self.__class__.__name__}] {self._nombre} | "
+            f"Precio base: ${self._precio_base:,.0f}/hora | {estado}"
+        )
+
 
         if not (0.0 <= impuesto <= 1.0):
             raise ErrorValidacion("❌ Impuesto inválido.")
@@ -196,6 +290,7 @@ class Servicio(ABC):
     def __str__(self) -> str:
         estado = "Disponible" if self._disponible else "No disponible"
         return f"{self._nombre} | ${self._precio_base:,.0f}/hora | {estado}"
+ main
 
 
 # ===========================================================================
