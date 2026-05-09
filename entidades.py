@@ -128,8 +128,6 @@ class Servicio(ABC):
         Valida que el precio_base sea positivo. Si no, lanza ErrorValidacion.
         Inicializa los atributos protegidos (prefijo _) que heredarán las hijas.
         """
- feature/cliente-reserva
-
  main
         # Validación: ningún servicio puede costar 0 o negativo
         if precio_base <= 0:
