@@ -97,6 +97,7 @@ def ejecutar_simulaciones():
     # -----------------------------------------------------------------------
     print("\n[Simulación 6] Creando reserva válida para la sala...")
     try:
+        sala = ServicioSala("Sala de Juntas Premium", 75000, "reuniones")
         reserva1 = Reserva(cliente1, sala, 4)  # 4 horas
         costo = reserva1.confirmar(aplicar_iva=True)
         print(f"   Reserva confirmada. Total: ${costo:,.2f}")
@@ -111,8 +112,13 @@ def ejecutar_simulaciones():
     print("\n[Simulación 7] Intentando reservar la misma sala (ya ocupada)...")
     try:
         cliente2 = Cliente(104, "Luisa Fernanda", "luisa@mail.com", "3112223344")
-        reserva2 = Reserva(cliente2, sala, 2)
-        reserva2.confirmar()
+        sala2 = ServicioSala("Sala de Juntas Premium", 75000, "reuniones")
+        reserva2 = Reserva(cliente2, sala2, 2)
+        reserva2.confirmar()  # Esta debería funcionar
+        # Intentar otra reserva sobre la misma sala para forzar error
+        cliente3 = Cliente(105, "Otra Persona", "otra@mail.com", "3001112233")
+        reserva3 = Reserva(cliente3, sala2, 1)
+        reserva3.confirmar()
     except ServicioNoDisponible as e:
         print(f"   Excepción capturada: {e}")
         logger.info(f"Simulación 7 (FALLÓ OK): {e}")
@@ -137,12 +143,13 @@ def ejecutar_simulaciones():
     # -----------------------------------------------------------------------
     print("\n[Simulación 9] Reservando equipo portátil con descuento del 10%...")
     try:
-        reserva3 = Reserva(cliente1, laptop, 5)
-        # Calculamos costo con descuento sin IVA, usando el método con sobrecarga
+        laptop = AlquilerEquipo("Laptop Dell XPS", 40000, "portátil")
+        cliente5 = Cliente(107, "Ana Equipos", "ana@mail.com", "3115556666")
+        reserva5 = Reserva(cliente5, laptop, 5)
         costo_est = laptop.calcular_costo_con_impuestos(5, impuesto=0.0, descuento=0.10)
         print(f"   Costo estimado (sin confirmar): ${costo_est:,.2f}")
-        reserva3.confirmar(aplicar_iva=False)
-        print(f"   Reserva confirmada. Total: ${reserva3.get_costo_total():,.2f}")
+        reserva5.confirmar(aplicar_iva=False)
+        print(f"   Reserva confirmada. Total: ${reserva5.get_costo_total():,.2f}")
         logger.info("Simulación 9 (OK): Reserva de equipo confirmada con descuento.")
     except Exception as e:
         print(f"   Error: {e}")
