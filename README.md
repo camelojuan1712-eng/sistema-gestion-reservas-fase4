@@ -15,8 +15,9 @@
 | Juan David | Líder de desarrollo, arquitectura del sistema | https://github.com/camelojuan1712-eng |
 | Paula | Servicios especializados, logging | https://github.com/Pau-lalala |
 | Itan Bautista | Pruebas unitarias, reportes, persistencia | https://github.com/bautisyoser21-cell |
+| Cristhian Jair Cano Villate | Menú interactivo, utilidades (código integrado por el equipo)
 
-> ⚠️ **Nota:** De los 5 integrantes originales del grupo, solo Paula, Itan y yo participamos activamente. Un cuarto integrante anunció su retiro antes de realizar aportes concretos. El quinto integrante nunca estableció comunicación.
+> ⚠️ **Nota:** De los 5 integrantes originales del grupo, cuatro participaron activamente. Cristhian no pudo usar Git directamente por dificultades técnicas, pero envió su código al equipo, que fue integrado al repositorio. El quinto integrante nunca estableció comunicación.
 
 ---
 
